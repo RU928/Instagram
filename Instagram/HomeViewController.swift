@@ -121,6 +121,8 @@ class HomeViewController: UIViewController,UITableViewDelegate, UITableViewDataS
         
         // セル内のボタンのアクションをソースコードで設定する
         cell.likeButton.addTarget(self, action:#selector(handleButton(sender:event:)), for:  UIControlEvents.touchUpInside)
+        cell.commentButton.addTarget(self, action:#selector(handleCommentButton(sender:event:)), for:  UIControlEvents.touchUpInside)
+
         
         return cell
     }
@@ -135,10 +137,42 @@ class HomeViewController: UIViewController,UITableViewDelegate, UITableViewDataS
         tableView.deselectRow(at: indexPath as IndexPath, animated: true)
     }
     
+    func handleCommentButton(sender: UIButton, event:UIEvent){
+        print("DEBUG_PRINT: commentボタンがタップされました")
+        // タップされたセルのインデックスを求める
+        let touch = event.allTouches?.first
+        let point = touch!.location(in: self.tableView)
+        let indexPath = tableView.indexPathForRow(at: point)
+        let cell = tableView.cellForRow(at: indexPath!)  as! PostTableViewCell
+        let commenttext = cell.commentText.text
+        
+        if commenttext != "" {
+        
+        // 配列からタップされたインデックスのデータを取り出す
+        let postData = postArray[indexPath!.row]
+        
+        if postData.comments != nil {
+        let beforeCommenttext = postData.comments
+        let comment = "\(beforeCommenttext!)\n\(postData.name!):\(commenttext!)"
+            postData.comments = comment
+        }else{
+            let comment = "\(postData.name!):\(commenttext!)"
+             postData.comments = comment
+        }
+        
+        let postRef = FIRDatabase.database().reference().child(Const.PostPath).child(postData.id!)
+        let comments = ["comment": postData.comments]
+        postRef.updateChildValues(comments)
+            
+        cell.commentText.text = ""
+
+        }
+
+    }
+    
     // セル内のボタンがタップされた時に呼ばれるメソッド
     func handleButton(sender: UIButton, event:UIEvent) {
         print("DEBUG_PRINT: likeボタンがタップされました。")
-        
         // タップされたセルのインデックスを求める
         let touch = event.allTouches?.first
         let point = touch!.location(in: self.tableView)
