@@ -145,6 +145,7 @@ class HomeViewController: UIViewController,UITableViewDelegate, UITableViewDataS
         let indexPath = tableView.indexPathForRow(at: point)
         let cell = tableView.cellForRow(at: indexPath!)  as! PostTableViewCell
         let commenttext = cell.commentText.text
+        let name = FIRAuth.auth()?.currentUser?.displayName
         
         if commenttext != "" {
         
@@ -153,10 +154,10 @@ class HomeViewController: UIViewController,UITableViewDelegate, UITableViewDataS
         
         if postData.comments != nil {
         let beforeCommenttext = postData.comments
-        let comment = "\(beforeCommenttext!)\n\(postData.name!):\(commenttext!)"
+        let comment = "\(beforeCommenttext!)\n\(name!):\(commenttext!)"
             postData.comments = comment
         }else{
-            let comment = "\(postData.name!):\(commenttext!)"
+            let comment = "\(name!):\(commenttext!)"
              postData.comments = comment
         }
         
